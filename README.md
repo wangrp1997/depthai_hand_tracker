@@ -22,8 +22,8 @@ Running Google Mediapipe Hand Tracking models on [Luxonis DepthAI](https://docs.
   - [Credits](#credits)
 
 ## What's new ?
-* 05/04/2025:
-  * **test_branch_created:** This branch is for testting. Edit in Cursor.
+* 06/04/2025:
+  * **test_branch_created:** This branch is for testting. Edit in Cursor. Edit in win11 Cursor.
 * 18/12/2021:
   * **World landmarks:** the latest versions of the landmark models have a 2nd output that yields estimated real-world 3D coordinates in meters with the origin at the hand’s approximate geometric center. Note that this brings very similar information to the "classic" output that yields also 3D coordinates but in a normalized form. To use the world landmarks, set the HandTracker's argument *use_world_landmarks* to True. It will fill the HandRegion's attribute *world_landmarks*. The example [Pseudo-3D visualization with Open3d + smoothing filtering](examples/3d_visualization) has been updated to demonstrate the differences between the various kinds of landmarks.  
 * 24/11/2021:
