@@ -1,0 +1,17 @@
+# Python virtual environment
+ht_env/
+venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# IDE
+.vscode/
+.idea/
+
+# 其他
+*.log
+.DS_Store 

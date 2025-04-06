@@ -136,7 +136,7 @@ class HandTracker:
             self.internal_fps = internal_fps 
             print(f"Internal camera FPS set to: {self.internal_fps}")
             if resolution == "full":
-                self.resolution = (1920, 1080)
+                self.resolution = (1280, 800)
             elif resolution == "ultra":
                 self.resolution = (3840, 2160)
             else:
@@ -269,11 +269,11 @@ class HandTracker:
             # ColorCamera
             print("Creating Color Camera...")
             cam = pipeline.createColorCamera()
-            if self.resolution[0] == 1920:
-                cam.setResolution(dai.ColorCameraProperties.SensorResolution.THE_1080_P)
+            if self.resolution[0] == 1280:
+                cam.setResolution(dai.ColorCameraProperties.SensorResolution.THE_800_P)
             else:
                 cam.setResolution(dai.ColorCameraProperties.SensorResolution.THE_4_K)
-            cam.setBoardSocket(dai.CameraBoardSocket.RGB)
+            cam.setBoardSocket(dai.CameraBoardSocket.CAM_B)
             cam.setInterleaved(False)
             cam.setIspScale(self.scale_nd[0], self.scale_nd[1])
             cam.setFps(self.internal_fps)

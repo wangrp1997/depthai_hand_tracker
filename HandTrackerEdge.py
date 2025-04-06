@@ -1,7 +1,6 @@
 import numpy as np
 from collections import namedtuple
 
-from numpy.lib.arraysetops import isin
 import mediapipe_utils as mpu
 import depthai as dai
 import cv2
@@ -36,7 +35,7 @@ class HandTracker:
                     - "rgb_laconic": same as "rgb" but without sending the frames to the host (Edge mode only),
                     - a file path of an image or a video,
                     - an integer (eg 0) for a webcam id,
-                    In edge mode, only "rgb" and "rgb_laconic" are possible
+    In edge mode, only "rgb" and "rgb_laconic" are possible
     - pd_model: palm detection model blob file,
     - pd_score: confidence score to determine whether a detection is reliable (a float between 0 and 1).
     - pd_nms_thresh: NMS threshold.
@@ -152,7 +151,7 @@ class HandTracker:
             self.input_type = "rgb" # OAK* internal color camera
             self.laconic = input_src == "rgb_laconic" # Camera frames are not sent to the host
             if resolution == "full":
-                self.resolution = (1920, 1080)
+                self.resolution = (1280, 800)  # 修改为较低的分辨率
             elif resolution == "ultra":
                 self.resolution = (3840, 2160)
             else:
@@ -246,11 +245,11 @@ class HandTracker:
         # ColorCamera
         print("Creating Color Camera...")
         cam = pipeline.createColorCamera()
-        if self.resolution[0] == 1920:
-            cam.setResolution(dai.ColorCameraProperties.SensorResolution.THE_1080_P)
+        if self.resolution[0] == 1280:
+            cam.setResolution(dai.ColorCameraProperties.SensorResolution.THE_800_P)
         else:
             cam.setResolution(dai.ColorCameraProperties.SensorResolution.THE_4_K)
-        cam.setBoardSocket(dai.CameraBoardSocket.RGB)
+        cam.setBoardSocket(dai.CameraBoardSocket.CAM_B)
         cam.setInterleaved(False)
         cam.setIspScale(self.scale_nd[0], self.scale_nd[1])
         cam.setFps(self.internal_fps)
