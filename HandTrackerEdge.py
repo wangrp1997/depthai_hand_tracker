@@ -86,12 +86,12 @@ class HandTracker:
                 pd_model=PALM_DETECTION_MODEL, 
                 pd_score_thresh=0.5, pd_nms_thresh=0.3,
                 use_lm=True,
-                lm_model="lite",
+                lm_model="full",
                 lm_score_thresh=0.5,
                 use_world_landmarks=False,
                 pp_model = DETECTION_POSTPROCESSING_MODEL,
                 solo=True,
-                xyz=False,
+                xyz=True,
                 crop=False,
                 internal_fps=None,
                 resolution="full",
@@ -162,7 +162,7 @@ class HandTracker:
             if xyz:
                 # Check if the device supports stereo
                 cameras = self.device.getConnectedCameras()
-                if dai.CameraBoardSocket.LEFT in cameras and dai.CameraBoardSocket.RIGHT in cameras:
+                if dai.CameraBoardSocket.CAM_B in cameras and dai.CameraBoardSocket.CAM_C in cameras:
                     self.xyz = True
                 else:
                     print("Warning: depth unavailable on this device, 'xyz' argument is ignored")
@@ -276,27 +276,36 @@ class HandTracker:
             print("Creating MonoCameras, Stereo and SpatialLocationCalculator nodes...")
             # For now, RGB needs fixed focus to properly align with depth.
             # The value used during calibration should be used here
-            calib_data = self.device.readCalibration()
-            calib_lens_pos = calib_data.getLensPosition(dai.CameraBoardSocket.RGB)
-            print(f"RGB calibration lens position: {calib_lens_pos}")
-            cam.initialControl.setManualFocus(calib_lens_pos)
+            # calib_data = self.device.readCalibration()
+            # calib_lens_pos = calib_data.getLensPosition(dai.CameraBoardSocket.RGB)
+            # print(f"RGB calibration lens position: {calib_lens_pos}")
+            # cam.initialControl.setManualFocus(calib_lens_pos)
 
-            mono_resolution = dai.MonoCameraProperties.SensorResolution.THE_400_P
-            left = pipeline.createMonoCamera()
-            left.setBoardSocket(dai.CameraBoardSocket.LEFT)
-            left.setResolution(mono_resolution)
-            left.setFps(self.internal_fps)
-
-            right = pipeline.createMonoCamera()
-            right.setBoardSocket(dai.CameraBoardSocket.RIGHT)
-            right.setResolution(mono_resolution)
+            # mono_resolution = dai.MonoCameraProperties.SensorResolution.THE_400_P
+            # left = pipeline.createMonoCamera()
+            # left.setBoardSocket(dai.CameraBoardSocket.LEFT)
+            # left.setResolution(mono_resolution)
+            # left.setFps(self.internal_fps)
+            left = cam
+            right = pipeline.createColorCamera()
+            right.setBoardSocket(dai.CameraBoardSocket.CAM_C)
+            right.setResolution(dai.ColorCameraProperties.SensorResolution.THE_800_P)
+            right.setInterleaved(False)
+            right.setIspScale(self.scale_nd[0], self.scale_nd[1])
             right.setFps(self.internal_fps)
+
+            if self.crop:
+                cam.setVideoSize(self.frame_size, self.frame_size)
+                cam.setPreviewSize(self.frame_size, self.frame_size)
+            else: 
+                cam.setVideoSize(self.img_w, self.img_h)
+                cam.setPreviewSize(self.img_w, self.img_h)
 
             stereo = pipeline.createStereoDepth()
             stereo.setConfidenceThreshold(230)
             # LR-check is required for depth alignment
             stereo.setLeftRightCheck(True)
-            stereo.setDepthAlign(dai.CameraBoardSocket.RGB)
+            stereo.setDepthAlign(dai.CameraBoardSocket.CAM_B)
             stereo.setSubpixel(False)  # subpixel True brings latency
             # MEDIAN_OFF necessary in depthai 2.7.2. 
             # Otherwise : [critical] Fatal error. Please report to developers. Log: 'StereoSipp' '533'
@@ -307,8 +316,8 @@ class HandTracker:
             spatial_location_calculator.inputDepth.setBlocking(False)
             spatial_location_calculator.inputDepth.setQueueSize(1)
 
-            left.out.link(stereo.left)
-            right.out.link(stereo.right)    
+            left.isp.link(stereo.left)
+            right.isp.link(stereo.right)    
 
             stereo.depth.link(spatial_location_calculator.inputDepth)
 
