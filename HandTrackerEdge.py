@@ -273,7 +273,7 @@ class HandTracker:
         manager_script.setScript(self.build_manager_script())
 
         if self.xyz:
-            print("Creating MonoCameras, Stereo and SpatialLocationCalculator nodes...")
+            print("Creating ColorCameras, Stereo and SpatialLocationCalculator nodes...")
             # For now, RGB needs fixed focus to properly align with depth.
             # The value used during calibration should be used here
             # calib_data = self.device.readCalibration()
